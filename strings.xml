@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">NCERT AI Teacher</string>
+    <!-- Replace this with your deployed Streamlit app URL before building the APK. -->
+    <string name="teacher_web_url">__STREAMLIT_APP_URL__</string>
+</resources>
