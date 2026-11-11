@@ -1,41 +1,49 @@
-# NCERT AI Teacher — Android APK wrapper
+# NCERT AI Teacher — मोबाइल से APK बनाने की फाइलें
 
-यह Android Studio प्रोजेक्ट आपके Streamlit NCERT AI Teacher को Android ऐप के रूप में खोलता है।
-**यह अभी तैयार APK नहीं है।** APK बनाने से पहले Python/Streamlit ऐप को इंटरनेट पर deploy करना और नीचे URL सेट करना जरूरी है।
+इस repository में दो हिस्से हैं:
+- `app.py` और `requirements.txt`: ऑनलाइन Streamlit ऐप (AI/PDF यहीं चलेंगे)
+- `android-app/`: Android ऐप का WebView wrapper
+- `.github/workflows/build-apk.yml`: GitHub Actions से APK बनाने की प्रक्रिया
 
-## जरूरी बात
-- Android ऐप एक WebView wrapper है; असली AI और PDF processing आपके ऑनलाइन Streamlit server पर चलेगी।
-- मोबाइल में इंटरनेट चाहिए।
-- OpenAI API key केवल Streamlit server के सुरक्षित Secrets/Environment में रखें। APK में API key न डालें।
-- PDF अपलोड के लिए Android file picker सपोर्ट जोड़ा गया है।
+**यह ZIP अपने-आप APK नहीं है।** पहले Streamlit ऐप को ऑनलाइन चलाना होगा, फिर GitHub Actions APK बनाएगा।
 
-## चरण 1: Python ऐप deploy करें
-1. `ncert_ai_teacher_complete.zip` को extract करें।
-2. `app.py` और `requirements.txt` को किसी भरोसेमंद Streamlit hosting service पर deploy करें।
-3. Hosting dashboard के Secrets/Environment में `OPENAI_API_KEY` सेट करें।
-4. Deploy होने के बाद मिलने वाला HTTPS URL कॉपी करें।
+## मोबाइल से करने के चरण
 
-## चरण 2: Android URL सेट करें
-इस फाइल को खोलें:
-`app/src/main/res/values/strings.xml`
+### 1. इस ZIP को GitHub पर डालें
+1. GitHub में sign in करें और `New repository` दबाएँ।
+2. Repository का नाम `ncert-ai-teacher` रखें और **Private** चुनें।
+3. Repository बनने पर `Add file` → `Upload files` चुनें।
+4. ZIP को फोन में extract करें, फिर उसके अंदर की सभी फाइलें और `.github` folder repository में upload करें। ध्यान दें: `app.py` repository के मुख्य पेज/root में होना चाहिए।
+5. `Commit changes` दबाएँ।
 
-इस लाइन में:
-`https://YOUR-STREAMLIT-APP-URL.streamlit.app`
+### 2. Streamlit ऐप ऑनलाइन deploy करें
+1. https://share.streamlit.io/ खोलें और GitHub से sign in करें।
+2. `Create app` चुनें; अपनी repository, branch `main`, और main file path `app.py` चुनें।
+3. Advanced settings / Secrets में यह जोड़ें:
 
-अपना असली HTTPS deployment URL डालें।
+```toml
+OPENAI_API_KEY = "अपनी-API-key"
+```
 
-## चरण 3: APK बनाएँ
-1. Android Studio में यह `ncert_teacher_android` folder खोलें।
-2. Android SDK Platform 35 और JDK 17 उपलब्ध होने दें।
-3. Gradle sync पूरा होने दें।
-4. Menu: **Build > Build Bundle(s) / APK(s) > Build APK(s)** चुनें।
-5. APK आमतौर पर `app/build/outputs/apk/debug/app-debug.apk` में मिलेगा।
-6. APK को अपने Android फोन में भेजकर install करें। फोन पूछे तो केवल अपने बनाए/भरोसेमंद APK के लिए install permission दें।
+4. Deploy करें और ऐप का HTTPS URL कॉपी करें। API key केवल Streamlit Secrets में रखें—GitHub code, APK या किसी chat में नहीं।
 
-## अभी बाकी काम
-- असली hosted Streamlit URL डालना।
-- Android Studio से build करके फोन पर जाँचना।
-- Production release के लिए signed APK बनाना।
+### 3. GitHub में Streamlit URL variable जोड़ें
+1. अपनी GitHub repository खोलें → `Settings` → `Secrets and variables` → `Actions` → `Variables`।
+2. `New repository variable` दबाएँ।
+3. Name: `STREAMLIT_APP_URL`
+4. Value: Streamlit से मिला पूरा HTTPS URL, जैसे `https://your-app-name.streamlit.app`
+5. Save करें।
 
-## सुरक्षा
-API key को Android source code, APK, Git repository या सार्वजनिक संदेश में कभी न रखें।
+### 4. APK बनवाएँ और डाउनलोड करें
+1. Repository में `Actions` tab खोलें।
+2. `Build NCERT AI Teacher APK` workflow चुनें।
+3. `Run workflow` दबाएँ। Build पूरा होने तक प्रतीक्षा करें।
+4. सफल run खोलें; नीचे `Artifacts` में `ncert-ai-teacher-debug-apk` डाउनलोड करें।
+5. ZIP खोलकर `app-debug.apk` निकालें और अपने Android फोन में install करें। केवल अपने भरोसेमंद build को install करें।
+
+## जरूरी सुरक्षा और सीमाएँ
+- Android wrapper को चलाने के लिए इंटरनेट चाहिए।
+- AI और PDF processing ऑनलाइन Streamlit server पर होगी।
+- OpenAI API key कभी भी APK या GitHub repository में न डालें।
+- यह workflow debug APK बनाता है, Play Store के लिए signed release नहीं।
+- GitHub Actions build fail हो तो Actions run का error message देखकर उसे ठीक करना होगा।
